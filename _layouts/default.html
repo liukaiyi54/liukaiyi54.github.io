@@ -50,6 +50,14 @@
                 </a>
               </li>
               {% endif %}
+              
+              {% if site.weibo_username %}
+              <li>
+                <a href="http://weibo.com/{{ site.weibo_username }}" class="icon fa-weibo">
+                  <span class="label">Weibo</span>
+                </a>
+              </li>
+              {% endif %}
 
               {% if site.linkedin_username %}
               <li>
