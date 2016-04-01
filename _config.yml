@@ -23,4 +23,9 @@ weibo_username: 	  liukaiyi54
 # dribbble_username:    example  # Replace this with your Dribbble username
 
 # Build settings
+safe: true
+
 markdown: kramdown
+kramdown:
+  input: GFM
+  highligher: rouge

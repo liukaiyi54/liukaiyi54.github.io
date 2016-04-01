@@ -32,6 +32,7 @@
         <div id="main">
     <article>
         <header class="major">
+        <link rel="stylesheet" href="/css/rouge.css" />
             <h2 class="post-title">用KVC来修改系统类的私有属性</h2>
                 <p class="post-meta">Apr 1, 2016 posted by 凯一</p>
         </header>
@@ -43,33 +44,30 @@
 
 <p>获得私有属性需要用到runtime, 代码如下, 具体每个函数用途就不解释了, 顾名思义即可.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	unsigned int count = 0;
-	Ivar *ivars = class_copyIvarList([UIPageControl class], &amp;count);
-	for (int i = 0; i &lt; count; i++) {
-		const char *name = ivar_getName(ivar[i]);
-		const char *type = ivar_getTypeEncoding(ivars[i]);
-		NSLog(@"%s----%s", name, type);
-	}
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">unsigned</span> <span class="n">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="no">Ivar</span> <span class="o">*</span><span class="n">ivars</span> <span class="o">=</span> <span class="n">class_copyIvarList</span><span class="p">([</span><span class="no">UIPageControl</span> <span class="k">class</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">);</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+	<span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="nb">name</span> <span class="o">=</span> <span class="n">ivar_getName</span><span class="p">(</span><span class="n">ivar</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+	<span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">type</span> <span class="o">=</span> <span class="n">ivar_getTypeEncoding</span><span class="p">(</span><span class="n">ivars</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+	<span class="no">NSLog</span><span class="p">(</span><span class="err">@</span><span class="s2">"%s----%s"</span><span class="p">,</span> <span class="nb">name</span><span class="p">,</span> <span class="n">type</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
+
 <p>这里是获取<code class="highlighter-rouge">UIPageControl</code>的所有属性列表. 运行结果如下:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>2016-04-01 15:17:05.283 rank[78962:7532230] _lastUserInterfaceIdiom-----q
-2016-04-01 15:17:05.283 rank[78962:7532230] _indicators-----@"NSMutableArray"
-2016-04-01 15:17:05.284 rank[78962:7532230] _currentPage-----q
-2016-04-01 15:17:05.284 rank[78962:7532230] _displayedPage-----q
-2016-04-01 15:17:05.284 rank[78962:7532230] _pageControlFlags-----{?="hideForSinglePage"b1"defersCurrentPageDisplay"b1}
-2016-04-01 15:17:05.284 rank[78962:7532230] _currentPageImage-----@"UIImage"
-2016-04-01 15:17:05.284 rank[78962:7532230] _pageImage-----@"UIImage"
-2016-04-01 15:17:05.284 rank[78962:7532230] _currentPageImages-----@"NSMutableArray"
-2016-04-01 15:17:05.285 rank[78962:7532230] _pageImages-----@"NSMutableArray"
-2016-04-01 15:17:05.285 rank[78962:7532230] _backgroundVisualEffectView-----@"UIVisualEffectView"
-2016-04-01 15:17:05.285 rank[78962:7532230] _currentPageIndicatorTintColor-----@"UIColor"
-2016-04-01 15:17:05.285 rank[78962:7532230] _pageIndicatorTintColor-----@"UIColor"
-2016-04-01 15:17:05.285 rank[78962:7532230] _legibilitySettings-----@"_UILegibilitySettings"
-2016-04-01 15:17:05.285 rank[78962:7532230] _numberOfPages-----q
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">283</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_lastUserInterfaceIdiom</span><span class="o">-----</span><span class="n">q</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">283</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_indicators</span><span class="o">-----</span><span class="err">@</span><span class="s2">"NSMutableArray"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">284</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_currentPage</span><span class="o">-----</span><span class="n">q</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">284</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_displayedPage</span><span class="o">-----</span><span class="n">q</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">284</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_pageControlFlags</span><span class="o">-----</span><span class="p">{</span><span class="sc">?=</span><span class="s2">"hideForSinglePage"</span><span class="n">b1</span><span class="s2">"defersCurrentPageDisplay"</span><span class="n">b1</span><span class="p">}</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">284</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_currentPageImage</span><span class="o">-----</span><span class="err">@</span><span class="s2">"UIImage"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">284</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_pageImage</span><span class="o">-----</span><span class="err">@</span><span class="s2">"UIImage"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">284</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_currentPageImages</span><span class="o">-----</span><span class="err">@</span><span class="s2">"NSMutableArray"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">285</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_pageImages</span><span class="o">-----</span><span class="err">@</span><span class="s2">"NSMutableArray"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">285</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_backgroundVisualEffectView</span><span class="o">-----</span><span class="err">@</span><span class="s2">"UIVisualEffectView"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">285</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_currentPageIndicatorTintColor</span><span class="o">-----</span><span class="err">@</span><span class="s2">"UIColor"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">285</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_pageIndicatorTintColor</span><span class="o">-----</span><span class="err">@</span><span class="s2">"UIColor"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">285</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_legibilitySettings</span><span class="o">-----</span><span class="err">@</span><span class="s2">"_UILegibilitySettings"</span>
+<span class="mi">2016</span><span class="o">-</span><span class="mo">04</span><span class="o">-</span><span class="mo">01</span> <span class="mi">15</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mo">05</span><span class="o">.</span><span class="mi">285</span> <span class="n">rank</span><span class="p">[</span><span class="mi">78962</span><span class="p">:</span><span class="mi">7532230</span><span class="p">]</span> <span class="n">_numberOfPages</span><span class="o">-----</span><span class="n">q</span></code></pre></figure>
 
 <p>这里面有<code class="highlighter-rouge">_currentPageImage</code>和<code class="highlighter-rouge">_pageImage</code>这两个属性, 类型是<code class="highlighter-rouge">UIImage</code>可以让我们通过修改它们来自定义pageControl的式样.</p>
 
@@ -77,26 +75,23 @@
 
 <p>废话不说了, 直接上代码</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	UIPageControl *pageControl = [[UIPageControl alloc] init];
-	[pageControl setValue:[UIImage imageNamed:@"your_image"] forKey:@"_pageImage"];
-	[pageControl setValue:[UIImage imageNamed:@"your_another_image"] forKey:@"_currentPageImage"];
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">	<span class="no">UIPageControl</span> <span class="o">*</span><span class="n">pageControl</span> <span class="o">=</span> <span class="p">[[</span><span class="no">UIPageControl</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+	<span class="p">[</span><span class="n">pageControl</span> <span class="n">setValue</span><span class="p">:[</span><span class="no">UIImage</span> <span class="n">imageNamed</span><span class="p">:</span><span class="err">@</span><span class="s2">"your_image"</span><span class="p">]</span> <span class="n">forKey</span><span class="p">:</span><span class="err">@</span><span class="s2">"_pageImage"</span><span class="p">];</span>
+	<span class="p">[</span><span class="n">pageControl</span> <span class="n">setValue</span><span class="p">:[</span><span class="no">UIImage</span> <span class="n">imageNamed</span><span class="p">:</span><span class="err">@</span><span class="s2">"your_another_image"</span><span class="p">]</span> <span class="n">forKey</span><span class="p">:</span><span class="err">@</span><span class="s2">"_currentPageImage"</span><span class="p">];</span></code></pre></figure>
 
 <h4 id="section-1">3.其他</h4>
 
 <p>多说两句. 除了获取私有属性外, 还可以获取私有方法.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>	unsigned int count = 0;
-	Method *memberFuncs = class_copyMethodList([UIPageControl class], &amp;count);
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">	<span class="n">unsigned</span> <span class="n">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="no">Method</span> <span class="o">*</span><span class="n">memberFuncs</span> <span class="o">=</span> <span class="n">class_copyMethodList</span><span class="p">([</span><span class="no">UIPageControl</span> <span class="k">class</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">);</span>
 
-	for (int i = 0; i &lt; count; i++) {
-		SEL method_name = method_getName(memberFuncs[i]);
-		const char *name = sel_getName(method_name);
-		NSLog(@"%s", name);
-	}
-</code></pre>
-</div>
+	<span class="k">for</span> <span class="p">(</span><span class="n">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+		<span class="no">SEL</span> <span class="n">method_name</span> <span class="o">=</span> <span class="n">method_getName</span><span class="p">(</span><span class="n">memberFuncs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+		<span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="nb">name</span> <span class="o">=</span> <span class="n">sel_getName</span><span class="p">(</span><span class="n">method_name</span><span class="p">);</span>
+		<span class="no">NSLog</span><span class="p">(</span><span class="err">@</span><span class="s2">"%s"</span><span class="p">,</span> <span class="nb">name</span><span class="p">);</span>
+	<span class="p">}</span></code></pre></figure>
+
 <blockquote>
   <p>Method: typedef struct objc_method *Method; <br />
  Method是runtime中定义的一个宏, 关于runtime的这些基础知识, 完了再做一次整理吧.</p>
@@ -104,18 +99,17 @@
 
 <p>利用这个函数, 可以添加方法. 效果和用Category一样.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>BOOL class_addMethod(Class cls, SEL name, IMP imp, const char *types)
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">BOOL</span> <span class="n">class_addMethod</span><span class="p">(</span><span class="no">Class</span> <span class="n">cls</span><span class="p">,</span> <span class="no">SEL</span> <span class="nb">name</span><span class="p">,</span> <span class="no">IMP</span> <span class="n">imp</span><span class="p">,</span> <span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">types</span><span class="p">)</span></code></pre></figure>
+
 <p>其中</p>
 
 <p><code class="highlighter-rouge">cls</code>:你要给哪个类添加方法</p>
 
 <p><code class="highlighter-rouge">name</code>:你要添加的方法叫什么</p>
 
-<p><code class="highlighter-rouge">imp</code>:你要添加的方法的实现叫什么, 这个方法必须至少有<code class="highlighter-rouge">self</code>和<code class="highlighter-rouge">_cmd</code>两个参数</p>
+<p><code class="highlighter-rouge">imp</code>:你要添加的方法的实现叫什么, 这个方法必须至少有<strong>self</strong>和<strong>_cmd</strong>两个参数</p>
 
-<p><code class="highlighter-rouge">types</code>: 一个字符数组, 用来描述方法参数的类型. 因为这个方法至少有<code class="highlighter-rouge">self</code>和<code class="highlighter-rouge">_cmd</code>两个参数, 所以第二个和第三个字符必须是”@:”. 第一个字符是返回值得类型. 具体参考<a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html">Type Encodings</a></p>
+<p><code class="highlighter-rouge">types</code>: 一个字符数组, 用来描述方法参数的类型. 因为这个方法至少有<strong>self</strong>和<strong>_cmd</strong>两个参数, 所以第二个和第三个字符必须是 <strong>@:</strong> . 第一个字符是返回值得类型. 具体参考<a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html">Type Encodings</a></p>
 
         </section>
         
