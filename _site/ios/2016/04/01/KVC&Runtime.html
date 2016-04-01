@@ -33,7 +33,7 @@
     <article>
         <header class="major">
             <h2 class="post-title">用KVC来修改系统类的私有属性</h2>
-                <p class="post-meta">Mar 29, 2016 posted by 凯一</p>
+                <p class="post-meta">Apr 1, 2016 posted by 凯一</p>
         </header>
 
         <section>
@@ -104,10 +104,12 @@
 
 <p>利用这个函数, 可以添加方法. 效果和用Category一样.</p>
 
-<pre><code class="language-objectivec">BOOL class_addMethod(Class cls, SEL name, IMP imp, const char *types)
+<div class="highlighter-rouge"><pre class="highlight"><code>BOOL class_addMethod(Class cls, SEL name, IMP imp, const char *types)
 </code></pre>
-<p>其中
- <code class="highlighter-rouge">cls</code>:你要给哪个类添加方法</p>
+</div>
+<p>其中</p>
+
+<p><code class="highlighter-rouge">cls</code>:你要给哪个类添加方法</p>
 
 <p><code class="highlighter-rouge">name</code>:你要添加的方法叫什么</p>
 
