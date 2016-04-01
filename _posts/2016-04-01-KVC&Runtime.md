@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 用KVC来修改系统类的私有属性
-date: 2016-03-29
+date: 2016-04-01
 author: 凯一
 categories: iOS
 ---
@@ -70,10 +70,11 @@ categories: iOS
 
 利用这个函数, 可以添加方法. 效果和用Category一样.
 
-``` objectivec
+```
 BOOL class_addMethod(Class cls, SEL name, IMP imp, const char *types)
 ```
 其中
+
  `cls`:你要给哪个类添加方法
 
  `name`:你要添加的方法叫什么
