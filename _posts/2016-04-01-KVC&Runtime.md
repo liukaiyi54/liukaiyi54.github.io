@@ -53,9 +53,9 @@ for (int i = 0; i < count; i++) {
 
 {% highlight ruby %}
 
-	UIPageControl *pageControl = [[UIPageControl alloc] init];
-	[pageControl setValue:[UIImage imageNamed:@"your_image"] forKey:@"_pageImage"];
-	[pageControl setValue:[UIImage imageNamed:@"your_another_image"] forKey:@"_currentPageImage"];
+UIPageControl *pageControl = [[UIPageControl alloc] init];
+[pageControl setValue:[UIImage imageNamed:@"your_image"] forKey:@"_pageImage"];
+[pageControl setValue:[UIImage imageNamed:@"your_another_image"] forKey:@"_currentPageImage"];
 
 {% endhighlight %}
 
@@ -64,14 +64,14 @@ for (int i = 0; i < count; i++) {
 多说两句. 除了获取私有属性外, 还可以获取私有方法.
 
 {% highlight ruby %}
-	unsigned int count = 0;
-	Method *memberFuncs = class_copyMethodList([UIPageControl class], &count);
+unsigned int count = 0;
+Method *memberFuncs = class_copyMethodList([UIPageControl class], &count);
 
-	for (int i = 0; i < count; i++) {
-		SEL method_name = method_getName(memberFuncs[i]);
-		const char *name = sel_getName(method_name);
-		NSLog(@"%s", name);
-	}
+for (int i = 0; i < count; i++) {
+	SEL method_name = method_getName(memberFuncs[i]);
+	const char *name = sel_getName(method_name);
+	NSLog(@"%s", name);
+}
 {% endhighlight %}
 
 > Method: typedef struct objc_method *Method; <br>

@@ -75,22 +75,22 @@
 
 <p>废话不说了, 直接上代码</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">	<span class="no">UIPageControl</span> <span class="o">*</span><span class="n">pageControl</span> <span class="o">=</span> <span class="p">[[</span><span class="no">UIPageControl</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
-	<span class="p">[</span><span class="n">pageControl</span> <span class="n">setValue</span><span class="p">:[</span><span class="no">UIImage</span> <span class="n">imageNamed</span><span class="p">:</span><span class="err">@</span><span class="s2">"your_image"</span><span class="p">]</span> <span class="n">forKey</span><span class="p">:</span><span class="err">@</span><span class="s2">"_pageImage"</span><span class="p">];</span>
-	<span class="p">[</span><span class="n">pageControl</span> <span class="n">setValue</span><span class="p">:[</span><span class="no">UIImage</span> <span class="n">imageNamed</span><span class="p">:</span><span class="err">@</span><span class="s2">"your_another_image"</span><span class="p">]</span> <span class="n">forKey</span><span class="p">:</span><span class="err">@</span><span class="s2">"_currentPageImage"</span><span class="p">];</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">UIPageControl</span> <span class="o">*</span><span class="n">pageControl</span> <span class="o">=</span> <span class="p">[[</span><span class="no">UIPageControl</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+<span class="p">[</span><span class="n">pageControl</span> <span class="n">setValue</span><span class="p">:[</span><span class="no">UIImage</span> <span class="n">imageNamed</span><span class="p">:</span><span class="err">@</span><span class="s2">"your_image"</span><span class="p">]</span> <span class="n">forKey</span><span class="p">:</span><span class="err">@</span><span class="s2">"_pageImage"</span><span class="p">];</span>
+<span class="p">[</span><span class="n">pageControl</span> <span class="n">setValue</span><span class="p">:[</span><span class="no">UIImage</span> <span class="n">imageNamed</span><span class="p">:</span><span class="err">@</span><span class="s2">"your_another_image"</span><span class="p">]</span> <span class="n">forKey</span><span class="p">:</span><span class="err">@</span><span class="s2">"_currentPageImage"</span><span class="p">];</span></code></pre></figure>
 
 <h4 id="section-1">3.其他</h4>
 
 <p>多说两句. 除了获取私有属性外, 还可以获取私有方法.</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">	<span class="n">unsigned</span> <span class="n">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="no">Method</span> <span class="o">*</span><span class="n">memberFuncs</span> <span class="o">=</span> <span class="n">class_copyMethodList</span><span class="p">([</span><span class="no">UIPageControl</span> <span class="k">class</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">);</span>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">unsigned</span> <span class="n">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="no">Method</span> <span class="o">*</span><span class="n">memberFuncs</span> <span class="o">=</span> <span class="n">class_copyMethodList</span><span class="p">([</span><span class="no">UIPageControl</span> <span class="k">class</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">);</span>
 
-	<span class="k">for</span> <span class="p">(</span><span class="n">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
-		<span class="no">SEL</span> <span class="n">method_name</span> <span class="o">=</span> <span class="n">method_getName</span><span class="p">(</span><span class="n">memberFuncs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
-		<span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="nb">name</span> <span class="o">=</span> <span class="n">sel_getName</span><span class="p">(</span><span class="n">method_name</span><span class="p">);</span>
-		<span class="no">NSLog</span><span class="p">(</span><span class="err">@</span><span class="s2">"%s"</span><span class="p">,</span> <span class="nb">name</span><span class="p">);</span>
-	<span class="p">}</span></code></pre></figure>
+<span class="k">for</span> <span class="p">(</span><span class="n">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+	<span class="no">SEL</span> <span class="n">method_name</span> <span class="o">=</span> <span class="n">method_getName</span><span class="p">(</span><span class="n">memberFuncs</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+	<span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="nb">name</span> <span class="o">=</span> <span class="n">sel_getName</span><span class="p">(</span><span class="n">method_name</span><span class="p">);</span>
+	<span class="no">NSLog</span><span class="p">(</span><span class="err">@</span><span class="s2">"%s"</span><span class="p">,</span> <span class="nb">name</span><span class="p">);</span>
+<span class="p">}</span></code></pre></figure>
 
 <blockquote>
   <p>Method: typedef struct objc_method *Method; <br />
