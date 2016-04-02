@@ -130,7 +130,8 @@
 
 	blockquote {
 		border-left: solid 6px #efefef;
-		font-style: italic;
+		font-style: normal;
+		background: #f6f7f9;
 		margin: 0 0 2em 0;
 		padding: 0.5em 0 0.5em 1.5em;
 	}
@@ -139,7 +140,7 @@
 		background: #333;
 		color: #fff;
 		border-radius: 0.35em;
-		border: solid 2px #efefef;
+		border: solid 1px #efefef;
 		font-family: "Courier New", monospace;
 		font-size: 0.9em;
 		margin: 0 0.25em;
