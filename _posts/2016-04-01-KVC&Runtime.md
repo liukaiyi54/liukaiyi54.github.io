@@ -92,3 +92,5 @@ BOOL class_addMethod(Class cls, SEL name, IMP imp, const char *types)
  `imp`:你要添加的方法的实现叫什么, 这个方法必须至少有**self**和**_cmd**两个参数
 
  `types`: 一个字符数组, 用来描述方法参数的类型. 因为这个方法至少有**self**和**_cmd**两个参数, 所以第二个和第三个字符必须是 **@:** . 第一个字符是返回值得类型. 具体参考[Type Encodings](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html)
+
+这个函数的返回值是个布尔类型，如果添加方法成功的话返回**YES**，失败返回**NO**。

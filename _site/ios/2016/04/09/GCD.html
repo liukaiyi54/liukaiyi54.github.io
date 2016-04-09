@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>Michael's blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <center><a href="/" class="image avatar"><img src="/images/avatar.jpg" alt="" /></a></center>
+          <center><h1>This is Michael's <strong><a href="/">blog</a></strong>, where<br />
+          he probably puts everything on</center><br />
+<!--           crafted by <a href="http://html5up.net">HTML5 UP</a>. -->
+          </h1>
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+        <link rel="stylesheet" href="/css/rouge.css" />
+            <h2 class="post-title">用GCD实现多任务</h2>
+                <p class="post-meta">Apr 9, 2016 posted by 凯一</p>
+        </header>
+
+        <section>
+            <h3 id="gcd">用GCD实现多任务</h3>
+
+<p>GCD（Grand Central Dispatch）是iOS多任务的核心。<strong>NSOperationQueue</strong>是在GCD的基础上实现的，基本原理都类似。这个是要你把<strong>NSOperation</strong>添加到<strong>NSOperationQueue</strong>，而GCD是要你把一个块添加到分派队列。</p>
+
+<blockquote>
+  <p>Note that 分派队列是队列，不是线程。队列不是接受块的东西，而是组织块的。所有的GCD方法都是把块添加到队列末尾，而不是让块运行。</p>
+</blockquote>
+
+<p>块添加到分派队列后就无法取消了。分派队列是严格的FIFO结构，所以无法在队列中使用优先级或者调整块的次序。如果需要这一类的特性，直接用NSOperationQueue就好了，没有必要再用GCD去造轮子。</p>
+
+<p>所有的分派队列自身都是线程安全的，你能从多个线程并行的访问它们。</p>
+
+<h4 id="section">队列目标和优先级</h4>
+
+<p>GCD中队列是有层级的。只有全局系统队列会被调度运行，可以用<code class="highlighter-rouge">dispatch_get_global_queue</code>和下面这些优先级常量中的一个来访问这些队列：</p>
+
+<ul>
+  <li>DISPATCH_QUEUE_PRIORITY_HIGH</li>
+  <li>DISPATCH_QUEUE_PRIORITY_DEFAULT</li>
+  <li>DISPATCH_QUEUE_PRIORITY_LOW</li>
+  <li>DISPATCH_QUEUE_PRIORITY_BACKGROUND</li>
+</ul>
+
+<p>这四个队列都是并行的。GCD会根据可用线程尽可能从高优先级队列调度块，等高优先级的队列空了以后，会继续调用默认优先级队列，以此类推。</p>
+
+<blockquote>
+  <p>除了这四个全局队列外，系统还提供一个叫主队列（main queue）的特殊队列，它是个串行队列。这个队列中的任务一次只能执行一个，但是它能够保证所有任务都在主线程上运行。你更新UI线程只能在主线程上更新，所以这个队列主要就是用于给<strong>UIView</strong>发送消息或者发送通知的。</p>
+</blockquote>
+
+<p>我们自己创建一个队列时（我们暂时叫它A），它会默认附加到默认优先级队列上（暂时叫它B），当然你也可以手动来设置优先级。附加到的这个队列B就叫<strong>目标队列</strong>。当块到达队列A头部时，实际上会移动到目标队列B的尾部，当到达全局队列（也就是目标队列B）的头部时就会被执行。</p>
+
+<p>刚才说过，分派队列是严格的执行FIFO结构的，也就是块被添加到队列后，会按照添加的顺序运行，无法取消，也不能改变相对于队列中其它块的相对顺序。那要想让高优先级块插队怎么办呢？代码如下：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="sr">//</span> <span class="err">创建两个队列，一个低优先级，一个高优先级</span>
+<span class="n">dispatch_queue_t</span> <span class="n">low</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s2">"low"</span><span class="p">,</span> <span class="no">DISPATCH_QUEUE_SERIAL</span><span class="p">);</span>
+<span class="n">dispatch_queue_t</span> <span class="n">high</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s2">"high"</span><span class="p">,</span> <span class="no">DISPATCH_QUEUE_SERIAL</span><span class="p">);</span>
+
+<span class="sr">//</span> <span class="err">使高优先级队列成为低优先级队列的目标队列</span>
+<span class="n">dispatch_set_target_queue</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">);</span>
+
+<span class="sr">//</span><span class="err">先分派的低优先级队列</span>
+<span class="n">dispatch_async</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span> <span class="sr">/* low_priority_block */</span><span class="p">});</span>
+
+<span class="sr">//</span><span class="err">然后暂停低优先级队列，并且在高优先级块结束后恢复低优先级队列</span>
+<span class="n">dispatch_suspend</span><span class="p">(</span><span class="n">low</span><span class="p">);</span>
+<span class="n">dispatch_async</span><span class="p">(</span><span class="n">high</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+	<span class="sr">/* high_priority_block */</span>
+	<span class="n">dispatch_resume</span><span class="p">(</span><span class="n">low</span><span class="p">);</span>
+<span class="p">});</span></code></pre></figure>
+
+<blockquote>
+  <p>暂停队列会阻止调度开始就处于该队列的任何块，还有任何以该队列为目标队列的队列， 当然了！！头都没被调用，尾巴急个蛋蛋。但是暂停不会停止正在执行的快，当然了，不可能裤子都脱了，然后拍拍屁股走人吧。</p>
+</blockquote>
+
+<h4 id="dispatch">系统提供的dispatch方法</h4>
+
+<p>为了方便使用GCD，苹果提供了一些方法方便我们将block放在主线程或者后台线程执行，或者延后执行。</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="sr">//</span> <span class="err">后台执行</span>
+<span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
+	<span class="sr">//</span> <span class="n">something</span>
+<span class="p">});</span>
+
+<span class="sr">//</span> <span class="err">主线程执行</span>
+<span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_main_queue</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
+	<span class="sr">//</span> <span class="n">something</span>
+<span class="p">}</span>
+
+<span class="sr">//</span> <span class="err">一次性执行</span>
+<span class="n">static</span> <span class="n">dispatch_once_t</span> <span class="n">onceToken</span><span class="p">;</span>
+<span class="n">dispatch_once</span><span class="p">(</span><span class="o">&amp;</span><span class="n">onceToken</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+	<span class="sr">//</span> <span class="n">code</span> <span class="n">to</span> <span class="n">be</span> <span class="n">executed</span> <span class="n">once</span>
+<span class="p">});</span>
+
+<span class="sr">//</span> <span class="err">延迟</span><span class="mi">2</span><span class="err">秒执行</span>
+<span class="n">double</span> <span class="n">delayInSeconds</span> <span class="o">=</span> <span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">dispatch_time_t</span> <span class="n">popTime</span> <span class="o">=</span> <span class="n">dispatch_time</span><span class="p">(</span><span class="no">DISPATCH_TIME_NOW</span><span class="p">,</span> <span class="n">delayInSeconds</span> <span class="o">*</span> <span class="no">NSEC_PER_SEC</span><span class="p">);</span>
+<span class="n">dispatch_after</span><span class="p">(</span><span class="n">popTime</span><span class="p">,</span> <span class="n">dispatch_get_main_queue</span><span class="p">(),</span> <span class="o">^</span><span class="p">(</span><span class="n">void</span><span class="p">){</span>
+	<span class="sr">//</span> <span class="n">code</span> <span class="n">to</span> <span class="n">be</span> <span class="n">executed</span> <span class="n">on</span> <span class="n">the</span> <span class="n">main</span> <span class="n">queue</span> <span class="n">after</span> <span class="n">delay</span>
+<span class="p">});</span></code></pre></figure>
+
+<h4 id="section-1">分派组</h4>
+
+<p>分派组类似于NSOperation中的依赖关系。首先创建一个组：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">dispatch_group_t</span> <span class="n">group</span> <span class="o">=</span> <span class="n">dispatch_group_create</span><span class="p">();</span></code></pre></figure>
+
+<p>然后通过<code class="highlighter-rouge">dispatch_group_async</code>把块添加到组，类似于<code class="highlighter-rouge">dispatch_async</code>:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">dispatch_group_async</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">block</span><span class="p">);</span></code></pre></figure>
+
+<p>然后用<code class="highlighter-rouge">dispatch_group_notify(group, queue, block)</code>注册一个块，当组执行完成后调用它：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">dispatch_group_notify</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">queue</span><span class="p">,</span> <span class="n">block</span><span class="p">);</span></code></pre></figure>
+
+<p>当组里所有的块都执行完毕后，block就会被调度到queue上。如果调用<code class="highlighter-rouge">dispatch_group_notify</code>时队列上没有任何块，那么会马上出发通知。可以在配置组时调用<code class="highlighter-rouge">dispatch_suspend</code>暂停队列来防止这种情况，配置完成后调用<code class="highlighter-rouge">dispatch_resume</code>启动队列。</p>
+
+<p>下面是一个例子：在网上下载两张不同的图片，显示到不同的<code class="highlighter-rouge">UIImageView</code>上去。</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="o">-</span> <span class="p">(</span><span class="no">UIImage</span> <span class="o">*</span><span class="p">)</span><span class="n">imageWithURLString</span><span class="p">:(</span><span class="no">NSString</span> <span class="o">*</span><span class="p">)</span><span class="n">urlString</span> <span class="p">{</span>
+    <span class="no">NSURL</span> <span class="o">*</span><span class="n">url</span> <span class="o">=</span> <span class="p">[</span><span class="no">NSURL</span> <span class="no">URLWithString</span><span class="ss">:urlString</span><span class="p">];</span>
+    <span class="no">NSData</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="no">NSData</span> <span class="n">dataWithContentsOfURL</span><span class="ss">:url</span><span class="p">];</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="no">UIImage</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">initWithData</span><span class="ss">:data</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="o">-</span> <span class="p">(</span><span class="n">void</span><span class="p">)</span><span class="n">downloadImages</span> <span class="p">{</span>
+    <span class="n">dispatch_queue_t</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="no">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    
+    <span class="sr">//</span> <span class="err">异步下载图片</span>
+    <span class="n">dispatch_async</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+        <span class="sr">//</span> <span class="err">创建一个组</span>
+        <span class="n">dispatch_group_t</span> <span class="n">group</span> <span class="o">=</span> <span class="n">dispatch_group_create</span><span class="p">();</span>
+        
+        <span class="n">__block</span> <span class="no">UIImage</span> <span class="o">*</span><span class="n">image1</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">;</span>
+        <span class="n">__block</span> <span class="no">UIImage</span> <span class="o">*</span><span class="n">image2</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">;</span>
+        
+        <span class="sr">//</span> <span class="err">关联一个任务到</span><span class="n">group</span>
+        <span class="n">dispatch_group_async</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="no">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
+            <span class="sr">//</span> <span class="err">下载第一张图片</span>
+            <span class="no">NSString</span> <span class="o">*</span><span class="n">url1</span> <span class="o">=</span> <span class="err">@</span><span class="s2">"yourURL"</span><span class="p">;</span>
+            <span class="n">image1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">self</span> <span class="n">imageWithURLString</span><span class="ss">:url1</span><span class="p">];</span>
+        <span class="p">});</span>
+        
+        <span class="sr">//</span> <span class="err">关联一个任务到</span><span class="n">group</span>
+        <span class="n">dispatch_group_async</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="no">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">^</span><span class="p">{</span>
+            <span class="sr">//</span> <span class="err">下载第一张图片</span>
+            <span class="no">NSString</span> <span class="o">*</span><span class="n">url2</span> <span class="o">=</span> <span class="err">@</span><span class="s2">"yourURL"</span><span class="p">;</span>
+            <span class="n">image2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">self</span> <span class="n">imageWithURLString</span><span class="ss">:url2</span><span class="p">];</span>
+        <span class="p">});</span>
+        
+        <span class="sr">//</span> <span class="err">等待组中的任务执行完毕</span><span class="p">,</span><span class="err">回到主线程执行</span><span class="n">block</span><span class="err">回调</span>
+<span class="err">       </span> <span class="n">dispatch_group_notify</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">dispatch_get_main_queue</span><span class="p">(),</span> <span class="o">^</span><span class="p">{</span>
+<span class="err">           </span> <span class="nb">self</span><span class="p">.</span><span class="nf">imageView1</span><span class="p">.</span><span class="nf">image</span> <span class="o">=</span> <span class="n">image1</span><span class="p">;</span>
+<span class="err">           </span> <span class="nb">self</span><span class="p">.</span><span class="nf">imageView2</span><span class="p">.</span><span class="nf">image</span> <span class="o">=</span> <span class="n">image2</span><span class="p">;</span>
+<span class="err">       </span> <span class="p">});</span>
+    <span class="p">});</span>
+<span class="p">}</span></code></pre></figure>
+
+<blockquote>
+  <p>再强调一遍更新<strong>UIView</strong>一定要在主线程上</p>
+</blockquote>
+
+<h4 id="section-2">小结</h4>
+<p>乱乱糟糟写了这么多，有些知识是从网上学到的，有些是书上的。有些描述可能不太详尽，也可能不够准确，有异议的地方请发邮件指出，谢谢。</p>
+
+
+        </section>
+        
+<!--         <footer> -->
+<!--             <div class="row"> -->
+<!--              -->
+<!--              -->
+<!--                 <article class="6u 12u(small) excerpt"> -->
+<!--                     <header> -->
+<!--                         <h2><a href="/ios/2016/04/01/KVC&Runtime.html">用KVC来修改系统类的私有属性</a></h2> -->
+<!--                     </header> -->
+<!--                     <section> -->
+<!--                         <h3 id="kvc">用KVC来修改系统类的私有属性</h3>
+
+ -->
+<!--                     </section> -->
+<!--                     <footer> -->
+<!--                         <ul class="actions"> -->
+<!--                             <li><a href="/ios/2016/04/01/KVC&Runtime.html" class="button">Read More</a></li> -->
+<!--                         </ul> -->
+<!--                     </footer> -->
+<!--                 </article> -->
+<!--              -->
+<!--              -->
+<!--              -->
+<!--             </div> -->
+<!--         </footer> -->
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+          <center>
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/liukaiyi54" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/liukaiyi54" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+              
+              
+              <li>
+                <a href="http://weibo.com/liukaiyi54" class="icon fa-weibo">
+                  <span class="label">Weibo</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:liukaiyi54@gmail.com" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Copyright &copy; Michael 2016</li>
+<!--                 <li>Design: <a href="http://html5up.net">HTML5 UP</a></li> -->
+<!--                 <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li> -->
+<!--                 <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li> -->
+            </ul>
+          </center>
+        </footer>
+
+	</body>
+</html>
