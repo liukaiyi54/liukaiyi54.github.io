@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>Michael's blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <center><a href="/" class="image avatar"><img src="/images/avatar.jpg" alt="" /></a></center>
+          <center><h1>This is Michael's <strong><a href="/">blog</a></strong>, where<br />
+          he probably puts everything on</center><br />
+<!--           crafted by <a href="http://html5up.net">HTML5 UP</a>. -->
+          </h1>
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+        <link rel="stylesheet" href="/css/rouge.css" />
+            <h2 class="post-title">ARC</h2>
+                <p class="post-meta">May 8, 2016 posted by 凯一</p>
+        </header>
+
+        <section>
+            <h2 id="section">内存管理（一）</h2>
+
+<p>想花几个章节来整理一下内存管理的知识。</p>
+
+<p>我们都知道OC的内存管理用的是引用计数，下面是引用计数的思考方式。</p>
+
+<p>引用计数思考方式：</p>
+
+<ul>
+  <li>自己生成的对象，自己所持有</li>
+  <li>非自己生成的对象，自己也能持有</li>
+  <li>自己持有的对象不再需要时释放</li>
+  <li>非自己持有的对象无法释放</li>
+</ul>
+
+<p>用<strong>alloc</strong>/<strong>new</strong>/<strong>copy</strong>/<strong>mutableCopy</strong>以外的方法取得的对象，因为非自己生成并持有，所以自己不是该对象的持有者。</p>
+
+<p>调用<code class="highlighter-rouge">[NSMutableArray array]</code>方法使取得的对象存在，但是自己又不持有对象，实现方法如下：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="o">-</span> <span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="n">object</span> <span class="p">{</span>
+	<span class="nb">id</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+	
+	<span class="p">[</span><span class="n">obj</span> <span class="n">autorelease</span><span class="p">];</span>
+	
+	<span class="k">return</span> <span class="n">obj</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<blockquote>
+  <p><strong>autorelease</strong>提供使对象在超出指定的生存范围时能够自动并正确地释放的功能。</p>
+</blockquote>
+
+<blockquote>
+  <p><strong>release</strong>会直接释放掉对象，<strong>autorelease</strong>不立即释放，而是注册到<strong>autoreleasepool</strong>中，等pool结束时自动调用<strong>release</strong>。</p>
+</blockquote>
+
+<h3 id="autorelease">autorelease</h3>
+
+<p>很类似C语言中的局部变量，一旦局部变量超出其作用域，便自动被废弃。autorelease也是如此。与C语言不同的是，我们可以设定变量的作用域。</p>
+
+<p><strong>autorelease</strong>的具体使用方法如下：</p>
+
+<ol>
+  <li>生成并持有<strong>NSAutoreleasePool</strong>对象；</li>
+  <li>调用已分配对象的<strong>autorelease</strong>实例方法；</li>
+  <li>废弃<strong>NSAutoreleasePool</strong>对象。</li>
+</ol>
+
+<p><strong>NSAutoreleasePool</strong>对象的生存周期相当于C语言变量的作用域。对于所有调用过<strong>autorelease</strong>实例方法的对象，在废弃<strong>NSAutoreleasePool</strong>对象时，都将调用release实例方法。代码表示如下：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">NSAutoreleasePool</span> <span class="o">*</span><span class="n">pool</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSAutoreleasePool</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+<span class="nb">id</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+<span class="p">[</span><span class="n">obj</span> <span class="n">autorelease</span><span class="p">];</span>
+<span class="p">[</span><span class="n">pool</span> <span class="n">drain</span><span class="p">];</span> <span class="sr">//e</span><span class="n">qual</span> <span class="n">to</span> <span class="p">[</span><span class="n">obj</span> <span class="n">release</span><span class="p">]</span></code></pre></figure>
+
+<blockquote>
+  <p>在Cocoa框架中，相当于程序主循环的<strong>NSRunLoop</strong>或者在其他程序可运行的地方，对<strong>NSAutoreleasePool</strong>对象进行生成、持有和废弃处理。因此，我们不一定非得使用<strong>NSAutoreleasePool</strong>对象来进行开发工作。</p>
+</blockquote>
+
+<p><strong>WARNING: 当产生大量autorelease的对象时，只要不废弃NSAutoreleasePool对象，那么生成的对象就不能被释放。由此可能造成内存不足。</strong></p>
+
+<p><strong>autorelease</strong> <strong>NSAutoreleasePool</strong>对象时会出错。</p>
+
+<p>通常在使用<strong>Foundation</strong>框架时，无论调用哪一个对象的<strong>autorelease</strong>实例方法，实现上是调用的都是<strong>NSObject</strong>类的<strong>autorelease</strong>实例方法。但是对于<strong>NSAutoreleasePool</strong>类，<strong>autorelease</strong>实例方法已经被重载，因此运行时会出错。</p>
+
+<h3 id="arc">ARC</h3>
+
+<h4 id="section-1">内存管理思考方式</h4>
+<p>用引用计数的思考方式也是可行的。</p>
+
+<h4 id="section-2">所有权修饰符</h4>
+<p>ARC有效时，id类型的对象类型同C语言其他类型不同，其类型上必须附加所有权修饰符。一共有四种：
+- <strong>__strong</strong>
+- <strong>__weak</strong>
+- <strong>__unsafe_unretained</strong>
+- <strong>__autorelease</strong></p>
+
+<h5 id="strong">__strong</h5>
+<p><strong>__strong</strong>是id类型和对象类型默认的所有权修饰符。例如如下代码中的id变量，实际上被附加了所有权修饰符。</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+<span class="sr">//in</span> <span class="n">fact</span> <span class="n">it</span><span class="err">'</span><span class="n">s</span> <span class="n">like</span> <span class="n">this</span>
+<span class="nb">id</span> <span class="n">__strong</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span></code></pre></figure>
+
+<p>而ARC无效时，他的代码是这样的：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+<span class="sr">//in</span> <span class="n">fact</span> <span class="n">it</span><span class="err">'</span><span class="n">s</span> <span class="n">like</span> <span class="n">this</span>
+<span class="nb">id</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+<span class="p">[</span><span class="n">obj</span> <span class="n">release</span><span class="p">];</span></code></pre></figure>
+
+<blockquote>
+  <p><strong>__strong</strong>表示强引用。持有强引用的变量在超出其作用域时被废弃，随着强引用的失效，引用的对象会随之释放。</p>
+</blockquote>
+
+<p>老稍微举个简单个例子，加深一下理解</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="n">__strong</span> <span class="n">obj0</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span><span class="sr">//</span><span class="err">对象</span><span class="no">A</span>
+<span class="sr">//o</span><span class="n">bj0</span><span class="err">持有对象</span><span class="no">A</span><span class="err">的强引用，也就是自己生成的对象，自己所持有</span>
+<span class="nb">id</span> <span class="n">__strong</span> <span class="n">obj1</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">;</span>
+<span class="sr">//o</span><span class="n">bj1</span><span class="err">不持有任何对象</span>
+<span class="n">obj1</span> <span class="o">=</span> <span class="n">obj0</span><span class="p">;</span>
+<span class="sr">//o</span><span class="n">bj1</span><span class="err">持有了由</span><span class="n">obj0</span><span class="err">赋值的</span><span class="no">A</span><span class="err">对象的强引用，这便是非自己生成的对象，自己也能持有</span>
+<span class="n">obj1</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">;</span>
+<span class="sr">//o</span><span class="n">bj1</span><span class="err">释放了自己所持有的</span><span class="no">A</span><span class="err">对象，由此对</span><span class="no">A</span><span class="err">对象的持有只剩下了</span><span class="n">obj0</span><span class="err">，这是不再需要自己持有的对象时释放</span>
+
+<span class="sr">//</span><span class="err">还有最后一个，非自己持有的对象无法释放，废话么不是</span><span class="p">.</span><span class="nf">.</span><span class="p">.</span><span class="nf">.</span></code></pre></figure>
+
+<p>看着好像一个<strong>__strong</strong>就能搞定内存管理啊，实际上没有那么简单，比如我们写block经常会遇到的循环引用的问题它就束手无策了。这时候就要用另外一个修饰符<strong>__weak</strong>。</p>
+
+<h5 id="weak">__weak</h5>
+
+<p>还是来个小例子：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="vi">@interface</span> <span class="no">Test</span> <span class="p">:</span> <span class="no">NSObject</span>
+<span class="p">{</span>
+	<span class="nb">id</span> <span class="n">__strong</span> <span class="n">obj_</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="n">void</span><span class="p">)</span><span class="n">setObject</span><span class="p">:(</span><span class="nb">id</span> <span class="n">__strong</span><span class="p">)</span><span class="n">obj</span><span class="p">;</span>
+<span class="vi">@end</span>
+
+<span class="vi">@implementation</span> <span class="no">Test</span>
+<span class="o">-</span> <span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="n">init</span> <span class="p">{</span>
+	<span class="nb">self</span> <span class="o">=</span> <span class="p">[</span><span class="k">super</span> <span class="n">init</span><span class="p">];</span>
+	<span class="k">return</span> <span class="nb">self</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="o">-</span> <span class="p">(</span><span class="n">void</span><span class="p">)</span><span class="n">setObject</span><span class="p">:(</span><span class="nb">id</span> <span class="n">__strong</span><span class="p">)</span><span class="n">obj</span> <span class="p">{</span>
+	<span class="n">obj_</span> <span class="o">=</span> <span class="n">obj</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="vi">@end</span>
+
+<span class="sr">//</span><span class="err">下面就是发生循环引用的状况</span>
+<span class="p">{</span>
+	<span class="nb">id</span> <span class="n">test0</span> <span class="o">=</span> <span class="p">[[</span><span class="no">Test</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span><span class="sr">//</span><span class="err">对象</span><span class="no">A</span>
+	<span class="sr">//</span><span class="n">test0</span><span class="err">持有</span><span class="no">Test</span><span class="err">对象</span><span class="no">A</span><span class="err">的强引用</span>
+	<span class="nb">id</span> <span class="n">test1</span> <span class="o">=</span> <span class="p">[[</span><span class="no">Test</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span><span class="sr">//</span><span class="err">对象</span><span class="no">B</span>
+	<span class="sr">//</span><span class="n">test1</span><span class="err">持有</span><span class="no">Test</span><span class="err">对象</span><span class="no">B</span><span class="err">的强引用</span>
+	<span class="p">[</span><span class="n">test0</span> <span class="n">setObject</span><span class="ss">:test1</span><span class="p">];</span>
+	<span class="sr">//</span><span class="no">Test</span><span class="err">对象</span><span class="no">A</span><span class="err">的成员变量</span><span class="n">obj_</span><span class="err">持有</span><span class="no">Test</span><span class="err">对象</span><span class="no">B</span><span class="err">的强引用</span>
+	<span class="p">[</span><span class="n">test1</span> <span class="n">setObject</span><span class="ss">:test0</span><span class="p">];</span>
+	<span class="sr">//</span><span class="no">Test</span><span class="err">对象</span><span class="no">B</span><span class="err">的成员变量</span><span class="n">obj_</span><span class="err">持有</span><span class="no">Test</span><span class="err">对象</span><span class="no">A</span><span class="err">的强引用</span>
+<span class="p">}</span>
+
+<span class="sr">//</span><span class="n">test0</span><span class="err">变量超出其作用域，强引用失效，自动释放</span><span class="no">Test</span><span class="err">对象</span><span class="no">A</span>
+
+<span class="sr">//</span><span class="n">test1</span><span class="err">变量超出其作用域，强引用失效，自动释放</span><span class="no">Test</span><span class="err">对象</span><span class="no">B</span>
+
+<span class="sr">//</span><span class="err">此时持有</span><span class="no">Test</span><span class="err">对象</span><span class="no">A</span><span class="err">的强引用变量为</span><span class="no">Test</span><span class="err">对象</span><span class="no">B</span><span class="err">的成员变量</span><span class="n">obj_</span>
+
+<span class="sr">//</span><span class="err">持有</span><span class="no">Test</span><span class="err">对象</span><span class="no">B</span><span class="err">的强引用为</span><span class="no">Test</span><span class="err">对象</span><span class="no">A</span><span class="err">的成员变量</span><span class="n">obj_</span>
+
+<span class="sr">//</span><span class="err">发生内存泄露！！</span></code></pre></figure>
+
+<blockquote>
+  <p>内存泄露：所谓内存泄露就是应当废弃的对象在超出其生存周期后继续存在</p>
+</blockquote>
+
+<p>好了，这就是发生循环引用的原因了。
+wait a minute..其实还有一种情况叫<strong>自引用</strong>。如下：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="nb">test</span> <span class="o">=</span> <span class="p">[[</span><span class="no">Test</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+<span class="p">[</span><span class="nb">test</span> <span class="n">setObject</span><span class="ss">:test</span><span class="p">];</span></code></pre></figure>
+
+<p>虽然只有一个对象，该对象持有其自身时，也会发生循环引用。</p>
+
+<p>而<strong>__weak</strong>修饰符可以避免循环引用。<strong>__weak</strong>与<strong>__strong</strong>相反，它提供弱引用。弱引用不能持有对象实例。比如：</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="n">__weak</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span></code></pre></figure>
+
+<p>编译器会发出警告。因为变量obj持有对持有对象的弱引用，因此，为了不以自己持有的状态来保存自己生成并持有的对象，生成的对象会立即被释放。</p>
+
+<p><strong>…To be continued</strong></p>
+
+
+        </section>
+        
+<!--         <footer> -->
+<!--             <div class="row"> -->
+<!--              -->
+<!--              -->
+<!--                 <article class="6u 12u(small) excerpt"> -->
+<!--                     <header> -->
+<!--                         <h2><a href="/ios/2016/04/09/GCD.html">用GCD实现多任务</a></h2> -->
+<!--                     </header> -->
+<!--                     <section> -->
+<!--                         <h3 id="gcd">用GCD实现多任务</h3>
+
+ -->
+<!--                     </section> -->
+<!--                     <footer> -->
+<!--                         <ul class="actions"> -->
+<!--                             <li><a href="/ios/2016/04/09/GCD.html" class="button">Read More</a></li> -->
+<!--                         </ul> -->
+<!--                     </footer> -->
+<!--                 </article> -->
+<!--              -->
+<!--              -->
+<!--              -->
+<!--             </div> -->
+<!--         </footer> -->
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+          <center>
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/liukaiyi54" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/liukaiyi54" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+              
+              
+              <li>
+                <a href="http://weibo.com/liukaiyi54" class="icon fa-weibo">
+                  <span class="label">Weibo</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:liukaiyi54@gmail.com" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Copyright &copy; Michael 2016</li>
+<!--                 <li>Design: <a href="http://html5up.net">HTML5 UP</a></li> -->
+<!--                 <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li> -->
+<!--                 <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li> -->
+            </ul>
+          </center>
+        </footer>
+
+	</body>
+</html>

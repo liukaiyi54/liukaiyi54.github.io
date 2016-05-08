@@ -34,6 +34,35 @@
     <section>
         
             <header class="major">
+                <h2><a href="/ios/2016/05/08/ARC.html">ARC</a></h2>
+                <p class="post-meta">May 8, 2016 posted by 凯一</p>
+            </header>
+
+            <section>
+<!--                 <h2 id="section">内存管理（一）</h2>
+
+ -->
+                内存管理（一）
+
+想花几个章节来整理一下内存管理的知识。
+
+我们都知道OC的内存管理用的是引用计数，下面是引用计数的思考方式。
+
+引用计数思考方式：
+
+
+  自己生成的对象，自己所持有
+  非自己生成的对象，自己也能持有
+  自己持有的对象不再需要时释放
+  非自己持有的对象无法释放
+
+
+用alloc/new/copy/mutableCopy以外的方法取得的对象，因为非自己生成并持有，所以自...
+
+            </section>
+        <hr>        
+        
+            <header class="major">
                 <h2><a href="/ios/2016/04/09/GCD.html">用GCD实现多任务</a></h2>
                 <p class="post-meta">Apr 9, 2016 posted by 凯一</p>
             </header>
@@ -109,6 +138,25 @@ Well, I do not own ...
 <!--  -->
 <!--                 <article class="6u 12u(small)"> -->
 <!--                     <header> -->
+<!--                         <h2><a href="/ios/2016/05/08/ARC.html">ARC</a></h2> -->
+<!--                             <p class="post-meta">May 8, 2016 posted by 凯一</p> -->
+<!--                     </header> -->
+<!--                     <section> -->
+<!--                         <h2 id="section">内存管理（一）</h2>
+
+ -->
+<!--                     </section> -->
+<!--                     <footer> -->
+<!--                         <ul class="actions"> -->
+<!--                             <li><a href="/ios/2016/05/08/ARC.html" class="button">Read More</a></li> -->
+<!--                         </ul> -->
+<!--                     </footer> -->
+<!--                 </article> -->
+<!--  -->
+<!--              -->
+<!--  -->
+<!--                 <article class="6u$ 12u(small)"> -->
+<!--                     <header> -->
 <!--                         <h2><a href="/ios/2016/04/09/GCD.html">用GCD实现多任务</a></h2> -->
 <!--                             <p class="post-meta">Apr 9, 2016 posted by 凯一</p> -->
 <!--                     </header> -->
@@ -126,7 +174,7 @@ Well, I do not own ...
 <!--  -->
 <!--              -->
 <!--  -->
-<!--                 <article class="6u$ 12u(small)"> -->
+<!--                 <article class="6u 12u(small)"> -->
 <!--                     <header> -->
 <!--                         <h2><a href="/ios/2016/04/01/KVC&Runtime.html">用KVC来修改系统类的私有属性</a></h2> -->
 <!--                             <p class="post-meta">Apr 1, 2016 posted by 凯一</p> -->
@@ -145,7 +193,7 @@ Well, I do not own ...
 <!--  -->
 <!--              -->
 <!--  -->
-<!--                 <article class="6u 12u(small)"> -->
+<!--                 <article class="6u$ 12u(small)"> -->
 <!--                     <header> -->
 <!--                         <h2><a href="/2016/03/29/finally.html">Finally</a></h2> -->
 <!--                             <p class="post-meta">Mar 29, 2016 posted by Michael</p> -->
