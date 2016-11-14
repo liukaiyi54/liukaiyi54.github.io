@@ -58,7 +58,7 @@
 <p>A multi-core device can execute multiple threads at the same time via <strong>parallelism</strong>, but a single-core device can only achieve this by performing a context switch, which gives you the illusion that it also doing a parallel execution.</p>
 
 <p>So the picture below clearly shows that <strong>concurrency</strong> only makes it <strong>FEEL</strong> like we’re executing multiple threads at the same time, while in fact it’s just constantly doing the so-called “context switch” process. On the other hand, we can see that <strong>parallelism</strong> is the real multi-tasking, let’s hear the applause.
-<img src="https://github.com/liukaiyi54/liukaiyi54.github.io/tree/master/_posts/123.png" alt="" /></p>
+<img src="https://koenig-media.raywenderlich.com/uploads/2014/01/Concurrency_vs_Parallelism.png" alt="" /></p>
 
 <h3 id="deadlock">Deadlock</h3>
 <p>Two or more threads are deadlocked if they all get stuck waiting for each other to complete their action. The first can’t finish its action because it’s waiting for the second to finish, and the second can’t finish because it’s waiting for the first to finish. And now we’re deadlocked.</p>
