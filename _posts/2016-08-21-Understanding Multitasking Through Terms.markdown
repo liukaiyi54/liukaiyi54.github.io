@@ -22,7 +22,7 @@ A **synchronous** function returns only after the completion of a task, but an *
 A multi-core device can execute multiple threads at the same time via **parallelism**, but a single-core device can only achieve this by performing a context switch, which gives you the illusion that it also doing a parallel execution.
 
 So the picture below clearly shows that **concurrency** only makes it **FEEL** like we're executing multiple threads at the same time, while in fact it's just constantly doing the so-called "context switch" process. On the other hand, we can see that **parallelism** is the real multi-tasking, let's hear the applause.
-![](14790909038756.png)
+![](https://github.com/liukaiyi54/liukaiyi54.github.io/tree/master/_posts/123.png)
 
 
 ### Deadlock
