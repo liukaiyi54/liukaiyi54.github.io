@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>Michael's blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <center><a href="/" class="image avatar"><img src="/images/avatar.jpg" alt="" /></a></center>
+          <center><h1>This is Michael's <strong><a href="/">blog</a></strong>, where<br />
+          he probably puts everything on</center><br />
+<!--           crafted by <a href="http://html5up.net">HTML5 UP</a>. -->
+          </h1>
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+        <link rel="stylesheet" href="/css/rouge.css" />
+            <h2 class="post-title">Understanding Multitasking Through Terms</h2>
+                <p class="post-meta">Aug 21, 2016 posted by Michael</p>
+        </header>
+
+        <section>
+            <h1 id="understanding-multitasking-through-terms">Understanding Multitasking Through Terms</h1>
+
+<blockquote>
+  <p>There are important terms that we have to figure out to understand the almighty multitasking better!!</p>
+</blockquote>
+
+<h3 id="serial-vs-concurrent">Serial vs. Concurrent</h3>
+<p>These two terms describe how the tasks are executed. Tasks executed <strong>serially</strong> are always executed only one at a time while tasks executed <strong>concurrently</strong> might be executed at the same time.</p>
+
+<h3 id="synchronous-vs-asynchronous">Synchronous vs. Asynchronous</h3>
+<p>A <strong>synchronous</strong> function returns only after the completion of a task, but an <strong>asynchronous</strong> function does not wait for the task to be done and it returns immediately. So the major difference between these two is a <strong>synchronous</strong> function blocks the current thread of execution from processing on to the next one, but an <strong>asynchronous</strong> function does not.</p>
+
+<h3 id="concurrency-vs-parallelism">Concurrency vs Parallelism</h3>
+<blockquote>
+  <p>A major reason why I write this in English is that it’s much easier to tell the difference between these two terms, while in Chinese translation it might not be that clear.</p>
+</blockquote>
+
+<p>A multi-core device can execute multiple threads at the same time via <strong>parallelism</strong>, but a single-core device can only achieve this by performing a context switch, which gives you the illusion that it also doing a parallel execution.</p>
+
+<p>So the picture below clearly shows that <strong>concurrency</strong> only makes it <strong>FEEL</strong> like we’re executing multiple threads at the same time, while in fact it’s just constantly doing the so-called “context switch” process. On the other hand, we can see that <strong>parallelism</strong> is the real multi-tasking, let’s hear the applause.
+<img src="14790909038756.png" alt="" /></p>
+
+<h3 id="deadlock">Deadlock</h3>
+<p>Two or more threads are deadlocked if they all get stuck waiting for each other to complete their action. The first can’t finish its action because it’s waiting for the second to finish, and the second can’t finish because it’s waiting for the first to finish. And now we’re deadlocked.</p>
+
+<h3 id="thread-safe">Thread safe</h3>
+<p>Thread safe code can be safely called from multiple threads without causing any problems. Meanwhile, code that is not thread safe must be run in one thread at a time.</p>
+
+<h3 id="queues">Queues</h3>
+<blockquote>
+  <p>Meaning GCD queues here.</p>
+</blockquote>
+
+<p>GCD provides <strong>dispatch queues</strong> to handle blocks of code. Like all queues, queues in GCD also take FIFO order, which guarantee that first task added to the queue is the first task that’ll start in the queue.</p>
+
+<p>There are <strong>serial queues</strong> and <strong>concurrent queues</strong>. Tasks in <strong>serial queues</strong> execute one at a time, and the second won’t be executed until the previous one gets finished.</p>
+
+<p>Tasks in <strong>concurrent queues</strong> are guaranteed to start in the order they were added and that’s the only one thing that can be guaranteed. We have no idea in what order they’ll finish, and we don’t know when will the next given block start, nor how many blocks are running at any moment.</p>
+
+<h4 id="types">Types</h4>
+<p>The system provides a serial queue known as the main queue, which can be accessed by <code class="highlighter-rouge">dispatch_get_main_queue</code>. We already know that tasks in serial queue execute one at a time. But the important thing is this queue guarantees that all tasks will execute on the main thread, <strong>which is the only thread you are allowed to update your UI.</strong></p>
+
+<p>The system also provides some concurrent queues, knowns as the <strong>global dispatch queues</strong>, which can be accessed by <code class="highlighter-rouge">dispatch_get_global_queue</code>. This queue has four priorities: background, low, default, and high.</p>
+
+<p>Other than these, you’re able to create your own custom serial or concurrent queues. <code class="highlighter-rouge">dispatch_queue_create</code> at your service any time!</p>
+
+<hr />
+
+<p>I have tried my best to explain all these terms in my own way. Hope that you have a better understanding about all these after reading. Thx!!</p>
+
+
+        </section>
+        
+<!--         <footer> -->
+<!--             <div class="row"> -->
+<!--              -->
+<!--              -->
+<!--                 <article class="6u 12u(small) excerpt"> -->
+<!--                     <header> -->
+<!--                         <h2><a href="/2016/07/17/consolation.html">Consolation</a></h2> -->
+<!--                     </header> -->
+<!--                     <section> -->
+<!--                         <h3 id="consolation">Consolation</h3>
+
+ -->
+<!--                     </section> -->
+<!--                     <footer> -->
+<!--                         <ul class="actions"> -->
+<!--                             <li><a href="/2016/07/17/consolation.html" class="button">Read More</a></li> -->
+<!--                         </ul> -->
+<!--                     </footer> -->
+<!--                 </article> -->
+<!--              -->
+<!--              -->
+<!--              -->
+<!--             </div> -->
+<!--         </footer> -->
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+          <center>
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/liukaiyi54" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/liukaiyi54" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+              
+              
+              <li>
+                <a href="http://weibo.com/liukaiyi54" class="icon fa-weibo">
+                  <span class="label">Weibo</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:liukaiyi54@gmail.com" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Copyright &copy; Michael 2016</li>
+<!--                 <li>Design: <a href="http://html5up.net">HTML5 UP</a></li> -->
+<!--                 <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li> -->
+<!--                 <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li> -->
+            </ul>
+          </center>
+        </footer>
+
+	</body>
+</html>
