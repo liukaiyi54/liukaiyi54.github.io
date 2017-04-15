@@ -38,9 +38,7 @@
         </header>
 
         <section>
-            <h3 id="kvc">用KVC来修改系统类的私有属性</h3>
-
-<h4 id="section">1. 获得私有属性</h4>
+            <h4 id="section">1. 获得私有属性</h4>
 
 <p>获得私有属性需要用到runtime, 代码如下, 具体每个函数用途就不解释了, 顾名思义即可.</p>
 
@@ -71,7 +69,7 @@
 
 <p>这里面有<code class="highlighter-rouge">_currentPageImage</code>和<code class="highlighter-rouge">_pageImage</code>这两个属性, 类型是<code class="highlighter-rouge">UIImage</code>可以让我们通过修改它们来自定义pageControl的式样.</p>
 
-<h4 id="kvc-1">2.通过KVC来修改属性</h4>
+<h4 id="kvc">2.通过KVC来修改属性</h4>
 
 <p>废话不说了, 直接上代码</p>
 
@@ -113,6 +111,7 @@
 
 <p>这个函数的返回值是个布尔类型，如果添加方法成功的话返回<strong>YES</strong>，失败返回<strong>NO</strong>。</p>
 
+
         </section>
         
 <!--         <footer> -->
@@ -143,7 +142,7 @@
 <!--                         <h2><a href="/ios/2016/04/09/GCD.html">用GCD实现多任务</a></h2> -->
 <!--                     </header> -->
 <!--                     <section> -->
-<!--                         <h3 id="gcd">用GCD实现多任务</h3>
+<!--                         <p>GCD（Grand Central Dispatch）是iOS多任务的核心。<strong>NSOperationQueue</strong>是在GCD的基础上实现的，基本原理都类似。这个是要你把<strong>NSOperation</strong>添加到<strong>NSOperationQueue</strong>，而GCD是要你把一个块添加到分派队列。</p>
 
  -->
 <!--                     </section> -->

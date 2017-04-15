@@ -5,9 +5,6 @@ date: 2016-07-17
 author: Michael
 ---
 
-
-### Consolation
-
 I know it's been so long since I posted last blog. It's totally my fault and I won't look for any kind of excuses, too busy working, got no time or whatever. But I never stopped writing, that's one great thing for sure.
 
 I feel kind of wasted lately, because there seems to be a lot of spare time for me to do so many things that I always wanted to but all I ever did was playing heartstone and going to gym and watching TV and practicing oral English every fucking day. I know that I AM getting better, in the slowest way maybe. I get worried about myself from time to time because I know I can't keep doing this, I can't just live like this for the rest of my life.
@@ -25,3 +22,4 @@ Or whatever, maybe I want different things after. Who knows? Right? OKay, we bot
 I'm alright, I'm ok, I'm fine. I will work harder. I will get what I deserve. I just need some consolation. Now this is my consolation.
 
 The end.
+
