@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  	<head>
+  		<title>Michael's blog</title>
+  		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  		<meta name="description" content="" />
+  		<meta name="keywords" content="" />
+  		<!--[if lte IE 8]><script src="css/ie/html5shiv.js"></script><![endif]-->
+  		<script src="/js/jquery.min.js"></script>
+  		<script src="/js/jquery.poptrox.min.js"></script>
+  		<script src="/js/skel.min.js"></script>
+  		<script src="/js/init.js"></script>
+  		<noscript>
+  			<link rel="stylesheet" href="/css/skel.css" />
+  			<link rel="stylesheet" href="/css/style.css" />
+  			<link rel="stylesheet" href="/css/style-xlarge.css" />
+  		</noscript>
+  		<!--[if lte IE 8]><link rel="stylesheet" href="/css/ie/v8.css" /><![endif]-->
+  	</head>
+
+	<body id="top">
+
+      <header id="header">
+          <center><a href="/" class="image avatar"><img src="/images/avatar.jpg" alt="" /></a></center>
+          <center><h1>This is Michael's <strong><a href="/">blog</a></strong>, where<br />
+          he probably puts everything on</center><br />
+<!--           crafted by <a href="http://html5up.net">HTML5 UP</a>. -->
+          </h1>
+      </header>
+
+
+        <div id="main">
+    <article>
+        <header class="major">
+        <link rel="stylesheet" href="/css/rouge.css" />
+            <h2 class="post-title">记一次生成马赛克效果图片的经历</h2>
+                <p class="post-meta">Apr 12, 2017 posted by 凯一</p>
+        </header>
+
+        <section>
+            <h2 id="section">起因</h2>
+<p>有次逛github，看到一个repo，是用Python写的利用一堆图片剪裁成正方形然后生成一张大图，下了代码运行了一下发现效果很好。于是很自然地想到用一堆姑娘的照片生成一张大图应该会很讨姑娘喜欢。正好我想学下swift和mac开发，于是想何不用swift重写一下呢。开始写。</p>
+
+<h2 id="section-1">过程</h2>
+
+<h3 id="section-2">理解算法</h3>
+
+<p>因为对Python并没有太熟悉，加上Python的风格本来就看上去很散漫。所以这一步花了不少功夫，虽然只有两百多行代码。整理了一下，大概思路如下：</p>
+
+<ol>
+  <li>把一堆要用作tile的照片裁剪成正方形，比如50*50的</li>
+  <li>把要生成的那张图片也切成很多50*50的方块</li>
+  <li>对于每个大图的小方块寻找一个整体颜色最接近它的tile</li>
+  <li>创建一个图形上下文，把这些tile按顺序paste上去</li>
+  <li>保存到本地</li>
+</ol>
+
+<h3 id="swift">Swift实现</h3>
+<p>第一次用swift，发现自己有点自信过头了。本以为它跟OC是一个爹生的，应该可以边猜边写很顺利地写下去，就像会java的人去写C#一样。结果发现它的语法和整个语言架构风格跟OC相去甚远，于是基本上写一句话实现一个功能就要查一次文档，上一次Stack Overflow。期间无数次地猜想它这个语言应该是这样设计的，完了按自己想象的写，然后无数次地被编译器拒绝……不管如何磕磕巴巴，最终还是写下来了。当那个周五的晚上我看到它在吃掉我电脑好几个G的内存后终于生成了一张照片，正是我想要的效果，简直激动得想哭。</p>
+
+<p>然而内存消耗太严重是个大问题。把原图放大两倍生成的图效果很差，放大四倍的时候内存就飙到二十几G了。这样肯定不行。</p>
+
+<p>乖乖地打开Instrument开始找哪里内存用的最多。先是看到在获取每张图片pixel数组的时候占用的内存特别多，因为这一步需要把NSImage转成NSBitmapImageRep，然后发现NSBitmapImageRep数据量特别大。我在想是不是因为创建的存放bitmapData的指针没有在用完后及时释放掉导致内存爆表呢。于是我在每次获取完pixel数据后都对存放数据的指针手动进行了释放，然而发现内存问题一点都没有得到改善，并且占用内存大的还是那个地方。我又想，是我释放的方式不对吗。后来又在每次循环中加入autoreleasepool。发现还是没用，那究竟要怎么释放才行呢，想了很久，Google了好久，都没有思路，似乎我释放的没有什么问题。于是我想可能是被惯性思维带跑了，得重新梳理一下思路。</p>
+
+<p>我重新梳理了一下代码逻辑，重点查看了使用到获取pixel数据的方法。发现我在步骤3（对于每个大图的小方块寻找一个整体颜色最接近它的tile）的时候，要遍历所有的tile，而且对每一个大图的小方块，我都要遍历所有的tile来得到best fit tile，每遍历一次所有的tile，都要重复获取tile的pixel数据。这样一算，这个重复计算量简直大到天际了，我怎么可以这么蠢。于是重写了一个方法，把所有tile的pixel数据都提前算出来，再进行步骤3的时候再直接取数据即可。完了查看内存使用情况，发现改善了好多。</p>
+
+<p>完了还发现一个地方内存消耗也特别严重。就是要把目标图片的缩略图裁剪成很多10*10的小方块（来跟所有tiles对比找出每个小方块的best fit tile）的地方，我写了一个cropImage的方法，这个方法有个NSImage参数，然后返回一个NSImage。过程是先把NSImage转成CGImage，然后用它的cropping方法，最后再转成NSImage返回。这个地方要以10 * 10为单位遍历整个缩略图，因为是缩略图，所以整个循环也就基本一两千次，多一点三四千次，我想着不应该造成内存问题啊。我看到内存爆表的地方是CGBitmapAllocateData，以为又是生成的bitmap数据没有及时释放掉。于是在每次循环结束的时候手动释放它，没用；每次循环都加autoreleasepool，没用。看时间已经深夜，明天还要上班，本着不能影响工作的想法，就先睡觉了。然后在床上翻来覆去一直想这个问题，两点多的时候还没睡着，突然一个激灵，内存释放也需要时间吧，会不会是一次产生数据太多，还来不及释放又产生一堆数据？那我把循环拆开写，然后再稍微留点时间给它释放内存，应该就没问题了吧。看到已经两点多，强忍着没有再起来，想着第二天再处理。</p>
+
+<p>第二天，我满心欢喜地打开电脑，以我前一天晚上想到的方式来对那个方法进行处理。然后打开Instrument，想着终于能看到它乖乖地运行了。然而，内存又一次爆掉了……还是之前那个地方，一点改善都没有。我甚至都没有意识到我到底踩到什么坑了。于是又重新审视这段循环代码。</p>
+
+<p>然后发现，我每次循环的时候都要执行的cropImage函数，它每次take的参数都是同一个NSImage，也就是说，我每次循环的时候都要把这个NSImage转成CGImage，明显又是一次多余的计算…然后我重写了cropImage函数，让它take一个CGImage参数返回一个NSImage，然后在循环外面把要crop的NSImage提前转成CGImage，重新运行了一次，发现内存从最开始的几十个G减少到了几百M。哪怕是我把要生成的图调成4倍，甚至8倍，它都再没有上过1个G。至此长舒一口气，这个东西总算是能用了。</p>
+
+<blockquote>
+  <p>所以有时候这个内存问题，它可能藏得并不深，理清代码逻辑和每个步骤的开销在哪里显得尤为重要。</p>
+</blockquote>
+
+<h3 id="section-3">踩过的坑</h3>
+
+<p>虽然这整个过程也就短短几天，但是还是踩了一些坑。</p>
+
+<h4 id="section-4">两倍图</h4>
+<p>刚开始正常生成图片的时候，保存到本地的图片总是比我预设的大一倍。我以为哪里参数没设对，检查来检查去也没发现什么异常，真是百思不得其解。后来查资料发现，通过<code class="highlighter-rouge">lockFocus()</code>和<code class="highlighter-rouge">unlockFocus()</code>绘制的图像因为是面向设备的，所以绘制的默认是二倍图（大概是这样解释，函待专业口径）。然后改为<code class="highlighter-rouge">NSGraphicsContext</code>的绘制方法就没有问题了。</p>
+
+<h4 id="section-5">坐标系转化</h4>
+<p>生成图片时还发现，我生成的图像是倒立的。这个问题倒是很快就解决了。因为AppKit和Core Graphic以及Core Image用的坐标系不同。AppKit，对应到iOS设备上为（UIKit），它坐标原点在左上，而另外两种的坐标原点都在左下。所以图像在这几个库之间进行转化的时候要加多一步坐标原点的转换。</p>
+
+<h4 id="section-6">多线程</h4>
+<p>因为处理tiles和合成图片都是相对比较耗时的操作，并且阻塞UI响应的体验特别糟糕，所以我另开了一条线程去执行这些任务。这里我用的是NSOperationQueue，比较方便随时取消任务。然而我发现在处理放大8倍的图像时，绘制的完成图会出现白线，也就是说有的地方没有绘制到。而且这个bug，即使对一张特定的图片来说，每次出现的地方都不一样，有的白线长，有点白线短。感觉很是困惑，在想从什么地方下手去排查这个bug时，脑子里突然闪过，每次地方不一样，那么很有可能是线程同步问题。因为创建的这个OperationQueue时，我并没有预设它的最大并发数，而是让系统自己决定的。那么，很有可能是在所有tiles还没处理完的时候，它就开始绘制图像了，导致了绘制到相应区域的时候没有对应的tile来填充。然后我对这两个任务添加了依赖，保证所有tiles处理完成后，再进行绘制。果然，这个bug再没有出现过。</p>
+
+<h2 id="section-7">后话</h2>
+<p>哄姑娘开心是挺成功的，虽然没有什么持续的效果。其实这个虽然应该改成但是的。但是人总得安慰自己，好继续往下走嘛。后续我还修补了一下界面，弄了几个按钮、弹窗提醒、调节比例参数什么的，也算是做了一款能用的软件吧。裁了张姑娘的照片当做图标，打好包放在自己Launchpad里，偶尔看到还是有点成就感的。</p>
+
+<p>追求姑娘这个事情呢，继续加油好了，千万不能放弃。不要放弃。</p>
+
+
+        </section>
+        
+<!--         <footer> -->
+<!--             <div class="row"> -->
+<!--              -->
+<!--              -->
+<!--                 <article class="6u 12u(small) excerpt"> -->
+<!--                     <header> -->
+<!--                         <h2><a href="/2016/08/21/Understanding-Multitasking-Through-Terms.html">Understanding Multitasking Through Terms</a></h2> -->
+<!--                     </header> -->
+<!--                     <section> -->
+<!--                         <h1 id="understanding-multitasking-through-terms">Understanding Multitasking Through Terms</h1>
+
+ -->
+<!--                     </section> -->
+<!--                     <footer> -->
+<!--                         <ul class="actions"> -->
+<!--                             <li><a href="/2016/08/21/Understanding-Multitasking-Through-Terms.html" class="button">Read More</a></li> -->
+<!--                         </ul> -->
+<!--                     </footer> -->
+<!--                 </article> -->
+<!--              -->
+<!--              -->
+<!--              -->
+<!--             </div> -->
+<!--         </footer> -->
+
+    </article>
+
+</div>
+
+
+        <!-- Footer -->
+        <footer id="footer">
+          <center>
+            <ul class="icons">
+
+              
+              <li>
+                <a href="https://github.com/liukaiyi54" class="icon fa-github">
+                  <span class="label">GitHub</span>
+                </a>
+              </li>
+              
+
+              
+              <li>
+                <a href="https://twitter.com/liukaiyi54" class="icon fa-twitter">
+                  <span class="label">Twitter</span>
+                </a>
+              </li>
+              
+              
+              
+              <li>
+                <a href="http://weibo.com/liukaiyi54" class="icon fa-weibo">
+                  <span class="label">Weibo</span>
+                </a>
+              </li>
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+              <li>
+                <a href="mailto:liukaiyi54@gmail.com" class="icon fa-envelope-o">
+                  <span class="label">Email</span>
+                </a>
+              </li>
+              
+            </ul>
+            <ul class="copyright">
+                <li>Copyright &copy; Michael 2016</li>
+<!--                 <li>Design: <a href="http://html5up.net">HTML5 UP</a></li> -->
+<!--                 <li>Demo Images: <a href="https://unsplash.com/">Unsplash</a></li> -->
+<!--                 <li>Jekyll Template: <a href="http://cloudcannon.com">Cloud Cannon</a></li> -->
+            </ul>
+          </center>
+        </footer>
+
+	</body>
+</html>
