@@ -2,7 +2,7 @@
 layout: post
 title: Understanding Multitasking Through Terms
 date: 2016-08-21
-author: Michael
+author: Kai
 ---
 
 > There are important terms that we have to figure out to understand the almighty multitasking better!!

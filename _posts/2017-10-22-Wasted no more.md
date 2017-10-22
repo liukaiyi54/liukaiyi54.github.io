@@ -1,4 +1,9 @@
-# Wasted no more
+---
+layout: post
+title: Wasted No More
+date: 2017-10-22
+author: Kai
+---
 
 I have no idea why I have to go through these hard times. I never wanted to admit that I've lost the ability of expressing myself in some kind of weird way. The truth is that I haven't done this in a very long time, and I really should know that this is one thing I simply cannot drop, this is one of a few things that I'm actually good at.
 

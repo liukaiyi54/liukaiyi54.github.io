@@ -2,7 +2,7 @@
 layout: post
 title: Finally
 date: 2016-03-29
-author: Michael
+author: Kai
 <!-- categories: update -->
 ---
 
@@ -26,3 +26,5 @@ I think this is supposed to be a tech blog where I share my experience at work o
 Me too!!
 
 Ok, enough nonsense. Let's just say nice to meet you and hello, this brand new world!
+
+

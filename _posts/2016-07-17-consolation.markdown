@@ -2,7 +2,7 @@
 layout: post
 title: Consolation
 date: 2016-07-17
-author: Michael
+author: Kai
 ---
 
 I know it's been so long since I posted last blog. It's totally my fault and I won't look for any kind of excuses, too busy working, got no time or whatever. But I never stopped writing, that's one great thing for sure.
