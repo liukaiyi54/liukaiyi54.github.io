@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   	<head>
-  		<title>Michael's blog</title>
+  		<title>用GCD实现多任务</title>
   		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
   		<meta name="description" content="" />
   		<meta name="keywords" content="" />
@@ -22,7 +22,7 @@
 
       <header id="header">
           <center><a href="/" class="image avatar"><img src="/images/avatar.jpg" alt="" /></a></center>
-          <center><h1>This is Kai's <strong><a href="/">blog</a></strong>, where<br />
+          <center><h1>This is Kai's <strong><a href="/">homepage</a></strong>, where<br />
           he probably posts everything</center><br />
 <!--           crafted by <a href="http://html5up.net">HTML5 UP</a>. -->
           </h1>
@@ -48,7 +48,7 @@
 
 <p>所有的分派队列自身都是线程安全的，你能从多个线程并行的访问它们。</p>
 
-<h4 id="section">队列目标和优先级</h4>
+<h4 id="队列目标和优先级">队列目标和优先级</h4>
 
 <p>GCD中队列是有层级的。只有全局系统队列会被调度运行，可以用<code class="highlighter-rouge">dispatch_get_global_queue</code>和下面这些优先级常量中的一个来访问这些队列：</p>
 
@@ -90,7 +90,7 @@
   <p>暂停队列会阻止调度开始就处于该队列的任何块，还有任何以该队列为目标队列的队列， 当然了！！头都没被调用，尾巴急个蛋蛋。但是暂停不会停止正在执行的快，当然了，不可能裤子都脱了，然后拍拍屁股走人吧。</p>
 </blockquote>
 
-<h4 id="dispatch">系统提供的dispatch方法</h4>
+<h4 id="系统提供的dispatch方法">系统提供的dispatch方法</h4>
 
 <p>为了方便使用GCD，苹果提供了一些方法方便我们将block放在主线程或者后台线程执行，或者延后执行。</p>
 
@@ -111,13 +111,13 @@
 <span class="p">});</span>
 
 <span class="sr">//</span> <span class="err">延迟</span><span class="mi">2</span><span class="err">秒执行</span>
-<span class="n">double</span> <span class="n">delayInSeconds</span> <span class="o">=</span> <span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">double</span> <span class="n">delayInSeconds</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">;</span>
 <span class="n">dispatch_time_t</span> <span class="n">popTime</span> <span class="o">=</span> <span class="n">dispatch_time</span><span class="p">(</span><span class="no">DISPATCH_TIME_NOW</span><span class="p">,</span> <span class="n">delayInSeconds</span> <span class="o">*</span> <span class="no">NSEC_PER_SEC</span><span class="p">);</span>
 <span class="n">dispatch_after</span><span class="p">(</span><span class="n">popTime</span><span class="p">,</span> <span class="n">dispatch_get_main_queue</span><span class="p">(),</span> <span class="o">^</span><span class="p">(</span><span class="n">void</span><span class="p">){</span>
 	<span class="sr">//</span> <span class="n">code</span> <span class="n">to</span> <span class="n">be</span> <span class="n">executed</span> <span class="n">on</span> <span class="n">the</span> <span class="n">main</span> <span class="n">queue</span> <span class="n">after</span> <span class="n">delay</span>
 <span class="p">});</span></code></pre></figure>
 
-<h4 id="section-1">分派组</h4>
+<h4 id="分派组">分派组</h4>
 
 <p>分派组类似于NSOperation中的依赖关系。首先创建一个组：</p>
 
@@ -178,7 +178,7 @@
   <p>再强调一遍更新<strong>UIView</strong>一定要在主线程上</p>
 </blockquote>
 
-<h4 id="section-2">小结</h4>
+<h4 id="小结">小结</h4>
 <p>乱乱糟糟写了这么多，有些知识是从网上学到的，有些是书上的。有些描述可能不太详尽，也可能不够准确，有异议的地方请发邮件指出，谢谢。</p>
 
 
@@ -193,7 +193,7 @@
 <!--                         <h2><a href="/ios/2016/04/01/KVC&Runtime.html">用KVC来修改系统类的私有属性</a></h2> -->
 <!--                     </header> -->
 <!--                     <section> -->
-<!--                         <h4 id="section">1. 获得私有属性</h4>
+<!--                         <h4 id="1-获得私有属性">1. 获得私有属性</h4>
 
  -->
 <!--                     </section> -->
@@ -212,7 +212,7 @@
 <!--                         <h2><a href="/ios/2016/05/08/ARC.html">ARC</a></h2> -->
 <!--                     </header> -->
 <!--                     <section> -->
-<!--                         <h2 id="section">内存管理（一）</h2>
+<!--                         <h2 id="内存管理一">内存管理（一）</h2>
 
  -->
 <!--                     </section> -->

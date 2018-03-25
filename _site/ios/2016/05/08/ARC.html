@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   	<head>
-  		<title>Michael's blog</title>
+  		<title>ARC</title>
   		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
   		<meta name="description" content="" />
   		<meta name="keywords" content="" />
@@ -22,7 +22,7 @@
 
       <header id="header">
           <center><a href="/" class="image avatar"><img src="/images/avatar.jpg" alt="" /></a></center>
-          <center><h1>This is Kai's <strong><a href="/">blog</a></strong>, where<br />
+          <center><h1>This is Kai's <strong><a href="/">homepage</a></strong>, where<br />
           he probably posts everything</center><br />
 <!--           crafted by <a href="http://html5up.net">HTML5 UP</a>. -->
           </h1>
@@ -38,7 +38,7 @@
         </header>
 
         <section>
-            <h2 id="section">内存管理（一）</h2>
+            <h2 id="内存管理一">内存管理（一）</h2>
 
 <p>想花几个章节来整理一下内存管理的知识。</p>
 
@@ -104,17 +104,19 @@
 
 <h3 id="arc">ARC</h3>
 
-<h4 id="section-1">内存管理思考方式</h4>
+<h4 id="内存管理思考方式">内存管理思考方式</h4>
 <p>用引用计数的思考方式也是可行的。</p>
 
-<h4 id="section-2">所有权修饰符</h4>
-<p>ARC有效时，id类型的对象类型同C语言其他类型不同，其类型上必须附加所有权修饰符。一共有四种：
-- <strong>__strong</strong>
-- <strong>__weak</strong>
-- <strong>__unsafe_unretained</strong>
-- <strong>__autorelease</strong></p>
+<h4 id="所有权修饰符">所有权修饰符</h4>
+<p>ARC有效时，id类型的对象类型同C语言其他类型不同，其类型上必须附加所有权修饰符。一共有四种：</p>
+<ul>
+  <li><strong>__strong</strong></li>
+  <li><strong>__weak</strong></li>
+  <li><strong>__unsafe_unretained</strong></li>
+  <li><strong>__autorelease</strong></li>
+</ul>
 
-<h5 id="strong">__strong</h5>
+<h5 id="__strong">__strong</h5>
 <p><strong>__strong</strong>是id类型和对象类型默认的所有权修饰符。例如如下代码中的id变量，实际上被附加了所有权修饰符。</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="no">NSObject</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
@@ -143,11 +145,11 @@
 <span class="n">obj1</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">;</span>
 <span class="sr">//o</span><span class="n">bj1</span><span class="err">释放了自己所持有的</span><span class="no">A</span><span class="err">对象，由此对</span><span class="no">A</span><span class="err">对象的持有只剩下了</span><span class="n">obj0</span><span class="err">，这是不再需要自己持有的对象时释放</span>
 
-<span class="sr">//</span><span class="err">还有最后一个，非自己持有的对象无法释放，废话么不是</span><span class="p">.</span><span class="nf">.</span><span class="p">.</span><span class="nf">.</span></code></pre></figure>
+<span class="sr">//</span><span class="err">还有最后一个，非自己持有的对象无法释放，废话么不是</span><span class="o">....</span></code></pre></figure>
 
 <p>看着好像一个<strong>__strong</strong>就能搞定内存管理啊，实际上没有那么简单，比如我们写block经常会遇到的循环引用的问题它就束手无策了。这时候就要用另外一个修饰符<strong>__weak</strong>。</p>
 
-<h5 id="weak">__weak</h5>
+<h5 id="__weak">__weak</h5>
 
 <p>还是来个小例子：</p>
 
@@ -228,7 +230,7 @@ wait a minute..其实还有一种情况叫<strong>自引用</strong>。如下：
 
 <p>显然，obj0在超出作用域后被废弃，obj1的值也被名正言顺地赋值为nil。</p>
 
-<h5 id="unsafeunretained">__unsafe_unretained</h5>
+<h5 id="__unsafe_unretained">__unsafe_unretained</h5>
 
 <p>顾名思义，这个是不安全的所有权修饰符。</p>
 
